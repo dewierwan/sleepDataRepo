@@ -1,16 +1,21 @@
 /*
 Next steps: 
 - Make it work on a daily etc. basis, and in a way that doesn't require me to login every time. Might require some updates to the authorisation
-- Clean up historical data (e.g. lack of REM sleep in 2021, weird doubling up in Nov 2022)
 - Build nicer interfaces for tracking and monitoring sleep 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
+
+- DONE Clean up historical data (e.g. lack of REM sleep in 2021, weird doubling up in Nov 2022)
 - DONE Make it stop running when it gets to the end
+- DONE add to git etc.
 - DONE Lookup whether it's already synced the relevant data in Airtable, and if so don't create a new record 
 - DONE fix the authorisation so it updates the refresh token and access token
 
 Maybe in the future: 
 - Replace the Google Fit API with the Garmin API if I get access to it 
 - Have some alerts where if I go to bed really late I get an email the next day with some sleeping tips or something, or automatically pay someone money
+
+New tests. Let's go!
+
 */
 
 const express = require('express'); // Imports the Express module, which is used to build the server that handles incoming HTTP requests
@@ -24,6 +29,7 @@ const Airtable = require('airtable');
 const fs = require('fs');
 const path = require('path');
 const opn = require('opn');
+const progress = require('progress');
 
 require('dotenv').config(); // Load the dotenv variables into process.env
 
@@ -34,7 +40,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 
-// Starts the server, listening on port 3000
+// Starts the server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
@@ -92,7 +98,7 @@ async function createRecord(tableId, recordData) {
     });
 }
 
-const callBackUrl = "http://localhost:3000/refreshToken";
+const callBackUrl = "http://localhost:${port}/refreshToken";
 
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -231,8 +237,8 @@ async function getSleepData(accessToken) {
     const endDate = new Date(endDateMilli);
     */ 
 
-    const startDate = new Date('2023-05-01T00:00:00Z');
-    const endDate = new Date('2023-06-01T00:00:00Z');
+    const startDate = new Date('2018-01-01T00:00:00Z');
+    const endDate = new Date('2020-12-31T00:00:00Z');
     
     console.log(`\nStart date: ${startDate}\nEnd date: ${endDate}\n`);
 
@@ -251,6 +257,16 @@ async function getSleepData(accessToken) {
             }
         });
         const sessions = result.data.session;
+
+        // Create progress bar instance 
+        
+        const bar = new progress('Processing: [:bar] :percent :etas', {
+            complete: '=',
+            incomplete: ' ',
+            width: 20,
+            total: 100
+        });
+        
         try {
             for (let j = 0; j < sessions.length; j++) {
                 let sleepStart = sessions[j].startTimeMillis;
@@ -336,7 +352,9 @@ async function getSleepData(accessToken) {
                 } catch (e) {
                     console.log(e);
                 }
-                }
+                bar.tick();
+            }
+            bar.terminate();   
         } catch (e) {
             console.log(e);
         }

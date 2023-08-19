@@ -1,0 +1,14 @@
+name: Get Sleep Data
+on:
+  schedule:
+    - cron: "0 0,12 * * *"
+
+jobs:
+  get-sleep-data:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies  
+      run: npm install
+    - name: Start program
+      run: node app.js /start

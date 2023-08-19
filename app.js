@@ -227,18 +227,16 @@ async function airtableRecordLookup(sleepStartISO){
 async function getSleepData(accessToken) {
     let sleepId;
     let sleepArray = [];
-
-    /*
-    const daysAgo = 7;
+    
+    const daysAgo = 3;
     const now = Date.now(); // timestamp in milliseconds
     const startDateMilli = now - daysAgo * 24 * 60 * 60 * 1000;
     const startDate = new Date(startDateMilli);
     const endDateMilli = now
     const endDate = new Date(endDateMilli);
-    */ 
 
-    const startDate = new Date('2018-01-01T00:00:00Z');
-    const endDate = new Date('2020-12-31T00:00:00Z');
+    // const startDate = new Date('2018-01-01T00:00:00Z');
+    // const endDate = new Date('2020-12-31T00:00:00Z');
     
     console.log(`\nStart date: ${startDate}\nEnd date: ${endDate}\n`);
 

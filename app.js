@@ -6,8 +6,8 @@ Next steps:
 - Build nicer interfaces for tracking and monitoring sleep
 - Test the code in a headless environment using something like Puppeteer, to test how well it'll work in GH Actions 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
-
-Test commit
+- Review this original code for ways I could improve this code: https://ithoughthecamewithyou.com/post/export-google-fit-daily-steps-to-a-google-sheet
+- Share my code with that thread?
 
 Maybe in the future: 
 - Replace the Google Fit API with the Garmin API if I get access to it 

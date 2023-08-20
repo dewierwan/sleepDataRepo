@@ -27,8 +27,9 @@ jobs:
     #  run: node -r dotenv/config app.js
       
     - name: Start program
-      run: node app.js /start
+      run: node app.js
       env:
+        START_SERVER: 'false'
         AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }} 

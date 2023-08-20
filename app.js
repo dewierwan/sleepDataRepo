@@ -39,15 +39,27 @@ require('dotenv').config(); // Load the dotenv variables into process.env
 
 const app = express(); // Creates an Express application
 const port = process.env.PORT;
+//const tokenFilePath = path.join(__dirname, 'dynamicVariables.json');
+const envFilePath = path.join(__dirname, '.env'); // Specify the path to the .env file
+const callBackUrl = "http://localhost:${port}/refreshToken";
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    callBackUrl
+);
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 
 // Starts the server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
-});
+if (process.env.START_SERVER !== 'false'){
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}/`);
+    });
+}
+
+startProgram();
 
 // when a GET request comes in at /start, call the startProgram function
 app.get('/start', startProgram);
@@ -102,19 +114,6 @@ async function createRecord(tableId, recordData) {
     });
 }
 
-const callBackUrl = "http://localhost:${port}/refreshToken";
-
-const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    callBackUrl
-);
-
-//const tokenFilePath = path.join(__dirname, 'dynamicVariables.json');
-
-// Specify the path to the .env file
-const envFilePath = path.join(__dirname, '.env');
-
 async function getAccessToken() {
     // Read and return the refresh token from the dynamicVariables.json file
     let tokens;
@@ -158,7 +157,6 @@ async function getAccessToken() {
 
     envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`);
     fs.writeFileSync(envFilePath, envFileContent, 'utf8');
-
     
     return tokens;
 }

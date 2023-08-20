@@ -7,19 +7,9 @@ Next steps:
 - Test the code in a headless environment using something like Puppeteer, to test how well it'll work in GH Actions 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
 
-- DONE get rid of dynamicVariables.json, and put refreshToken into .env 
-- DONE Clean up historical data (e.g. lack of REM sleep in 2021, weird doubling up in Nov 2022)
-- DONE Make it stop running when it gets to the end
-- DONE add to git etc.
-- DONE Lookup whether it's already synced the relevant data in Airtable, and if so don't create a new record 
-- DONE fix the authorisation so it updates the refresh token and access token
-
 Maybe in the future: 
 - Replace the Google Fit API with the Garmin API if I get access to it 
 - Have some alerts where if I go to bed really late I get an email the next day with some sleeping tips or something, or automatically pay someone money
-
-New tests. Let's go!
-
 */
 
 const express = require('express'); // Imports the Express module, which is used to build the server that handles incoming HTTP requests
@@ -33,13 +23,10 @@ const Airtable = require('airtable');
 const fs = require('fs');
 const path = require('path');
 const opn = require('opn');
-// const progress = require('progress');
-
 require('dotenv').config(); // Load the dotenv variables into process.env
 
 const app = express(); // Creates an Express application
 const port = process.env.PORT;
-//const tokenFilePath = path.join(__dirname, 'dynamicVariables.json');
 const envFilePath = path.join(__dirname, '.env'); // Specify the path to the .env file
 const callBackUrl = "http://localhost:${port}/refreshToken";
 const oauth2Client = new google.auth.OAuth2(
@@ -61,14 +48,11 @@ if (process.env.START_SERVER !== 'false'){
 
 startProgram();
 
-// when a GET request comes in at /start, call the startProgram function
-app.get('/start', startProgram);
+app.get('/start', startProgram); // when a GET request comes in at /start, call the startProgram function
 
-// when a GET request comes in at /start, call the startProgram function
-app.get('/refreshToken', updateRefreshToken);
+app.get('/refreshToken', updateRefreshToken); // when a GET request comes in at /start, call the startProgram function
 
-// Configure Airtable API, base, tables and fields
-Airtable.configure({
+Airtable.configure({ // Configure Airtable API, base, tables and fields
     apiKey: process.env.AIRTABLE_API_KEY 
 });
 const base = Airtable.base('appSrgL62nq4dX4YD')
@@ -83,8 +67,7 @@ const tableAndFieldIds = {
     }
 };
 
-// Create records in Airtable
-async function createRecord(tableId, recordData) {
+async function createRecord(tableId, recordData) { // Create records in Airtable
     let recordToCreate = { fields: recordData };
 
     return new Promise((resolve, reject) => {
@@ -100,7 +83,6 @@ async function createRecord(tableId, recordData) {
                         console.warn(`Suggested to wait for ${retryAfter} seconds before making another request.`);
                     }
                 }
-
                 console.error('Error creating record in table:', tableId);
                 console.error('Record data:', JSON.stringify(recordToCreate, null, 2));
                 console.error('Actual error:', err);
@@ -115,29 +97,18 @@ async function createRecord(tableId, recordData) {
 }
 
 async function getAccessToken() {
-    // Read and return the refresh token from the dynamicVariables.json file
-    let tokens;
-    let refreshToken;
-    //const data = JSON.parse(fs.readFileSync(tokenFilePath, 'utf8'));
-    //refreshToken = data.refreshToken;
-
-    refreshToken = process.env.GOOGLE_REFRESH_TOKEN
-    //console.log(`refresh token .env: ${process.env.GOOGLE_REFRESH_TOKEN}`);
-
-    // Read the existing content of the .env file
-    let envFileContent = fs.readFileSync(envFilePath, 'utf8');
+    let refreshToken = process.env.GOOGLE_REFRESH_TOKEN
     
-    // Handle empty refresh token
-    if (!refreshToken) {
+    if (!refreshToken) { // Handle empty refresh token
         console.log("Empty refresh token");
         return false
     }
 
-    // Set refresh token 
-    oauth2Client.setCredentials({
+    oauth2Client.setCredentials({    // Set refresh token 
         refresh_token: refreshToken
     });
 
+    let tokens;
     try {
         tokens = await oauth2Client.getAccessToken();      
     } catch (err) {
@@ -145,19 +116,10 @@ async function getAccessToken() {
         return false
     }
 
-    // Update the refreshToken value
-    const newToken = tokens.res.data.refresh_token;        
-    //data.refreshToken = newToken;
-    
-    // Convert the data object back to a JSON string
-    //const updatedData = JSON.stringify(data, null, 2); // the third argument ensures pretty-printing with 2 spaces
-    
-    // Write this string back to the file
-    //fs.writeFileSync(tokenFilePath, updatedData, 'utf8');
-
-    envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`);
-    fs.writeFileSync(envFilePath, envFileContent, 'utf8');
-    
+    const newToken = tokens.res.data.refresh_token;      // Update the refreshToken value 
+    let envFileContent = fs.readFileSync(envFilePath, 'utf8'); // Read the existing content of the .env file      
+    envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`); // Update the desired .env file data
+    fs.writeFileSync(envFilePath, envFileContent, 'utf8'); // Write the new data to the .env file
     return tokens;
 }
 
@@ -165,18 +127,9 @@ async function updateRefreshToken(req, res){
     const queryUrl = new urlParse(req.url); // parses the request URL into an object using the url-parse module
     const code = querystring.parse(queryUrl.query).code; // extracts the query parameters from the URL as an object
     tokens = await oauth2Client.getToken(code);
-    //console.log(`Tokens: ${JSON.stringify(tokens, null, 2)}`);
 
-    //let data = {};
     const newToken = tokens.tokens.refresh_token
-    //data.refreshToken = newToken;
-
-    // Convert the data object back to a JSON string
-    //const updatedData = JSON.stringify(data, null, 2); // the third argument ensures pretty-printing with 2 spaces
-    
-    // Write this string back to the file
-    //fs.writeFileSync(tokenFilePath, updatedData, 'utf8');
-
+    let envFileContent = fs.readFileSync(envFilePath, 'utf8'); // Read the existing content of the .env file      
     envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`);
     fs.writeFileSync(envFilePath, envFileContent, 'utf8');
 
@@ -265,7 +218,6 @@ async function getSleepData(accessToken) {
             method: "GET",
             url: 'https://www.googleapis.com/fitness/v1/users/me/sessions',
             headers:{
-                // authorization: "Bearer " + tokens.tokens.access_token
                 authorization: "Bearer " + accessToken
             },
             params: {
@@ -275,17 +227,6 @@ async function getSleepData(accessToken) {
             }
         });
         const sessions = result.data.session;
-
-        /* This doesn't really work 
-        // Create progress bar instance 
-        
-        const bar = new progress('Processing: [:bar] :percent :etas', {
-            complete: '=',
-            incomplete: ' ',
-            width: 20,
-            total: 100
-        });
-        */
         
         try {
             for (let j = 0; j < sessions.length; j++) {
@@ -308,7 +249,6 @@ async function getSleepData(accessToken) {
                     sleepId = await createRecord(tableId, recordData);
                 } catch (error) {
                     console.error(`Error creating record in table '${tableId}' with data:`, recordData, 'Error message:', error.message);
-                    // Handle the error accordingly, like retrying, logging, or notifying the user
                 }
 
                 let sleepSession = {
@@ -372,16 +312,13 @@ async function getSleepData(accessToken) {
                 } catch (e) {
                     console.log(e);
                 }
-                // bar.tick();
             }
-            // bar.terminate();   
         } catch (e) {
             console.log(e);
         }
     } catch (e) {
         console.log(e);
     }
-    //console.log("Sleep Data: ", sleepArray);
     console.log(`\nMay you have many more nights of wonderful sleep!\n`);
     process.exit(); 
 };

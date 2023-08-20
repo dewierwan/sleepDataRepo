@@ -21,5 +21,9 @@
     "opn": "^6.0.0",
     "progress": "^2.0.3",
     "url-parse": "^1.5.10"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "puppeteer": "^21.1.0"
   }
 }

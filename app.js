@@ -2,12 +2,12 @@
 Next steps: 
 - Fix the authorisation flaw where it doesn't like my work account
 - make the code run on a consistent basis in github actions, and manages the API keys etc. appropriately
-- get rid of dynamicVariables.json, and put refreshToken into .env 
 - Make it work on a daily etc. basis, and in a way that doesn't require me to login every time. Might require some updates to the authorisation
 - Build nicer interfaces for tracking and monitoring sleep
 - Test the code in a headless environment using something like Puppeteer, to test how well it'll work in GH Actions 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
 
+- DONE get rid of dynamicVariables.json, and put refreshToken into .env 
 - DONE Clean up historical data (e.g. lack of REM sleep in 2021, weird doubling up in Nov 2022)
 - DONE Make it stop running when it gets to the end
 - DONE add to git etc.
@@ -33,7 +33,7 @@ const Airtable = require('airtable');
 const fs = require('fs');
 const path = require('path');
 const opn = require('opn');
-const progress = require('progress');
+// const progress = require('progress');
 
 require('dotenv').config(); // Load the dotenv variables into process.env
 
@@ -278,6 +278,7 @@ async function getSleepData(accessToken) {
         });
         const sessions = result.data.session;
 
+        /* This doesn't really work 
         // Create progress bar instance 
         
         const bar = new progress('Processing: [:bar] :percent :etas', {
@@ -286,6 +287,7 @@ async function getSleepData(accessToken) {
             width: 20,
             total: 100
         });
+        */
         
         try {
             for (let j = 0; j < sessions.length; j++) {
@@ -372,9 +374,9 @@ async function getSleepData(accessToken) {
                 } catch (e) {
                     console.log(e);
                 }
-                bar.tick();
+                // bar.tick();
             }
-            bar.terminate();   
+            // bar.terminate();   
         } catch (e) {
             console.log(e);
         }

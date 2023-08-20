@@ -1,14 +1,26 @@
 name: Get Sleep Data
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/10 * * * *"  
 
 jobs:
   get-sleep-data:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies  
+    - name: Install dependencies
       run: npm install
+      
+    - name: Install dotenv  
+      run: npm install dotenv
+    
+    - name: Load .env file
+      run: node -r dotenv/config app.js
+      env:
+        AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+        GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }} 
+        GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+      
     - name: Start program
       run: node app.js /start

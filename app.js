@@ -1,5 +1,6 @@
 /*
 Next steps: 
+- make the code run on a consistent basis in github actions, and manages the API keys etc. appropriately
 - Make it work on a daily etc. basis, and in a way that doesn't require me to login every time. Might require some updates to the authorisation
 - Build nicer interfaces for tracking and monitoring sleep 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 

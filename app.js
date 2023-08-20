@@ -4,7 +4,8 @@ Next steps:
 - make the code run on a consistent basis in github actions, and manages the API keys etc. appropriately
 - get rid of dynamicVariables.json, and put refreshToken into .env 
 - Make it work on a daily etc. basis, and in a way that doesn't require me to login every time. Might require some updates to the authorisation
-- Build nicer interfaces for tracking and monitoring sleep 
+- Build nicer interfaces for tracking and monitoring sleep
+- Test the code in a headless environment using something like Puppeteer, to test how well it'll work in GH Actions 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
 
 - DONE Clean up historical data (e.g. lack of REM sleep in 2021, weird doubling up in Nov 2022)

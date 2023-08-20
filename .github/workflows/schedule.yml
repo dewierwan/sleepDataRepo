@@ -20,16 +20,16 @@ jobs:
     - name: Install dependencies
       run: npm install
       
-    - name: Install dotenv module
-      run: npm install dotenv
+    #- name: Install dotenv module
+    #  run: npm install dotenv
     
-    - name: Load .env file
-      run: node -r dotenv/config app.js
+    #- name: Load .env file
+    #  run: node -r dotenv/config app.js
+      
+    - name: Start program
+      run: node app.js /start
       env:
         AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }} 
         GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-      
-    - name: Start program
-      run: node app.js /start

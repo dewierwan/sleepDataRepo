@@ -7,6 +7,8 @@ Next steps:
 - Test the code in a headless environment using something like Puppeteer, to test how well it'll work in GH Actions 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
 
+Test commit
+
 Maybe in the future: 
 - Replace the Google Fit API with the Garmin API if I get access to it 
 - Have some alerts where if I go to bed really late I get an email the next day with some sleeping tips or something, or automatically pay someone money

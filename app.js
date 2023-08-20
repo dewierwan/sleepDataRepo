@@ -1,6 +1,8 @@
 /*
 Next steps: 
+- Fix the authorisation flaw where it doesn't like my work account
 - make the code run on a consistent basis in github actions, and manages the API keys etc. appropriately
+- get rid of dynamicVariables.json, and put refreshToken into .env 
 - Make it work on a daily etc. basis, and in a way that doesn't require me to login every time. Might require some updates to the authorisation
 - Build nicer interfaces for tracking and monitoring sleep 
 - Build automations to send emails to me or similar describing how I'm doing and maybe giving me a score or something 
@@ -107,15 +109,24 @@ const oauth2Client = new google.auth.OAuth2(
     callBackUrl
 );
 
-const tokenFilePath = path.join(__dirname, 'dynamicVariables.json');
+//const tokenFilePath = path.join(__dirname, 'dynamicVariables.json');
+
+// Specify the path to the .env file
+const envFilePath = path.join(__dirname, '.env');
 
 async function getAccessToken() {
     // Read and return the refresh token from the dynamicVariables.json file
     let tokens;
     let refreshToken;
-    const data = JSON.parse(fs.readFileSync(tokenFilePath, 'utf8'));
-    refreshToken = data.refreshToken;
+    //const data = JSON.parse(fs.readFileSync(tokenFilePath, 'utf8'));
+    //refreshToken = data.refreshToken;
 
+    refreshToken = process.env.GOOGLE_REFRESH_TOKEN
+    //console.log(`refresh token .env: ${process.env.GOOGLE_REFRESH_TOKEN}`);
+
+    // Read the existing content of the .env file
+    let envFileContent = fs.readFileSync(envFilePath, 'utf8');
+    
     // Handle empty refresh token
     if (!refreshToken) {
         console.log("Empty refresh token");
@@ -134,14 +145,19 @@ async function getAccessToken() {
         return false
     }
 
-    // Update the refreshToken value        
-    data.refreshToken = tokens.res.data.refresh_token;
+    // Update the refreshToken value
+    const newToken = tokens.res.data.refresh_token;        
+    //data.refreshToken = newToken;
     
     // Convert the data object back to a JSON string
-    const updatedData = JSON.stringify(data, null, 2); // the third argument ensures pretty-printing with 2 spaces
+    //const updatedData = JSON.stringify(data, null, 2); // the third argument ensures pretty-printing with 2 spaces
     
     // Write this string back to the file
-    fs.writeFileSync(tokenFilePath, updatedData, 'utf8');
+    //fs.writeFileSync(tokenFilePath, updatedData, 'utf8');
+
+    envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`);
+    fs.writeFileSync(envFilePath, envFileContent, 'utf8');
+
     
     return tokens;
 }
@@ -152,14 +168,18 @@ async function updateRefreshToken(req, res){
     tokens = await oauth2Client.getToken(code);
     //console.log(`Tokens: ${JSON.stringify(tokens, null, 2)}`);
 
-    let data = {};
-    data.refreshToken = tokens.tokens.refresh_token;
+    //let data = {};
+    const newToken = tokens.tokens.refresh_token
+    //data.refreshToken = newToken;
 
     // Convert the data object back to a JSON string
-    const updatedData = JSON.stringify(data, null, 2); // the third argument ensures pretty-printing with 2 spaces
+    //const updatedData = JSON.stringify(data, null, 2); // the third argument ensures pretty-printing with 2 spaces
     
     // Write this string back to the file
-    fs.writeFileSync(tokenFilePath, updatedData, 'utf8');
+    //fs.writeFileSync(tokenFilePath, updatedData, 'utf8');
+
+    envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`);
+    fs.writeFileSync(envFilePath, envFileContent, 'utf8');
 
     startProgram()
 }

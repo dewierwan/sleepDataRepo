@@ -28,7 +28,7 @@ require('dotenv').config(); // Load the dotenv variables into process.env
 const app = express(); // Creates an Express application
 const port = process.env.PORT;
 const envFilePath = path.join(__dirname, '.env'); // Specify the path to the .env file
-const callBackUrl = "http://localhost:${port}/refreshToken";
+const callBackUrl = `http://localhost:${port}/refreshToken`;
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -45,12 +45,20 @@ if (process.env.START_SERVER !== 'false'){
         console.log(`Server running at http://localhost:${port}/`);
     });
 }
+app.get('/start', startProgram); // when a GET request comes in at /start, call the startProgram function
+app.get('/refreshToken', updateRefreshToken); // when a GET request comes in at /start, call the startProgram function
 
 startProgram();
 
-app.get('/start', startProgram); // when a GET request comes in at /start, call the startProgram function
-
-app.get('/refreshToken', updateRefreshToken); // when a GET request comes in at /start, call the startProgram function
+async function startProgram(){   
+    let tokens = await getAccessToken();
+    if (tokens == false) {
+        await openAuthUrl();
+        return
+    }    
+    accessToken = tokens.res.data.access_token;
+    getSleepData(accessToken);
+}
 
 Airtable.configure({ // Configure Airtable API, base, tables and fields
     apiKey: process.env.AIRTABLE_API_KEY 
@@ -133,7 +141,8 @@ async function updateRefreshToken(req, res){
     envFileContent = envFileContent.replace(/(GOOGLE_REFRESH_TOKEN=).*/, `$1${newToken}`);
     fs.writeFileSync(envFilePath, envFileContent, 'utf8');
 
-    startProgram()
+    // startProgram() // Better to just run the program twice if I need to reauthenticate
+    process.exit(); 
 }
 
 async function openAuthUrl(){
@@ -160,16 +169,6 @@ async function openAuthUrl(){
         return
     });
 }   
-
-async function startProgram(){   
-    let tokens = await getAccessToken();
-    if (tokens == false) {
-        await openAuthUrl();
-        return
-    }    
-    accessToken = tokens.res.data.access_token;
-    getSleepData(accessToken);
-}
 
 async function airtableRecordLookup(sleepStartISO){
     // Set up query parameters to search for existing record 

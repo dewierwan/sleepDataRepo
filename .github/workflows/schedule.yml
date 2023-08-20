@@ -7,7 +7,7 @@ jobs:
   get-sleep-data:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2.5.1
     - name: Install dependencies
       run: npm install
       

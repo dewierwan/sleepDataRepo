@@ -65,17 +65,18 @@ async function startProgram(){
 Airtable.configure({ // Configure Airtable API, base, tables and fields
     apiKey: process.env.AIRTABLE_API_KEY 
 });
-const base = Airtable.base('appSrgL62nq4dX4YD')
+const base = Airtable.base('appLVmFWWWnlIGvMI')
 const tableAndFieldIds = {
     sessions: {
-        tableId: "tbl6jaCDPU8Z58fa5", 
-        fieldIds: ["fldgdziqOVEzI2Tj3", "fldvuvkdS43kSLG3Q"] // 0 start, 1 end
+        tableId: "tblR6ODAu9xILUqbl", 
+        fieldIds: ["fldNhNZdVwWSZgkOw", "fld8aBjhqW3beQs08"] // 0 start, 1 end
     },
     stages: {
-        tableId: "tblt52ZF5k4x727O1",
-        fieldIds: ["flddHrFD1KupJ3lkE", "fldqNIvLtbmef409w", "fldarqthbymlkzQSD", "fldYryqKfTD8Lusa2"] // 0 start, 1 end, 2 value, 3 link
+        tableId: "tblz3ZNDcnR3JXbNx",
+        fieldIds: ["fldHAucUcx0EDYZR0", "fld7Tha1qd05Vm6iy", "fld6DKMwjSbvU7Ewr", "fldUU3NXW9nuKl9OJ"] // 0 start, 1 end, 2 value, 3 link
     }
 };
+
 
 async function createRecord(tableId, recordData) { // Create records in Airtable
     let recordToCreate = { fields: recordData };

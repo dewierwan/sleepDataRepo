@@ -203,7 +203,7 @@ async function getSleepData(accessToken) {
     let sleepId;
     let sleepArray = [];
     
-    const daysAgo = 3;
+    const daysAgo = 5;
     const now = Date.now(); // timestamp in milliseconds
     const startDateMilli = now - daysAgo * 24 * 60 * 60 * 1000;
     const startDate = new Date(startDateMilli);

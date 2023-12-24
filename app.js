@@ -68,11 +68,11 @@ Airtable.configure({ // Configure Airtable API, base, tables and fields
 const base = Airtable.base('appLVmFWWWnlIGvMI')
 const tableAndFieldIds = {
     sessions: {
-        tableId: "tblR6ODAu9xILUqbl", 
-        fieldIds: ["fldNhNZdVwWSZgkOw", "fld8aBjhqW3beQs08"] // 0 start, 1 end
+        tableId: "tblR6ODAu9xILUqbl", // session
+        fieldIds: ["fldNhNZdVwWSZgkOw", "fld8aBjhqW3beQs08", "fldFHGy8fNkX6hMSj"] // 0 start, 1 end, 2 packageName
     },
     stages: {
-        tableId: "tblz3ZNDcnR3JXbNx",
+        tableId: "tblz3ZNDcnR3JXbNx", // stage
         fieldIds: ["fldHAucUcx0EDYZR0", "fld7Tha1qd05Vm6iy", "fld6DKMwjSbvU7Ewr", "fldUU3NXW9nuKl9OJ"] // 0 start, 1 end, 2 value, 3 link
     }
 };
@@ -230,13 +230,14 @@ async function getSleepData(accessToken) {
         });
         const sessions = result.data.session;
         
+        //console.log(JSON.stringify(sessions, null, 2));
         try {
             for (let j = 0; j < sessions.length; j++) {
                 let sleepStart = sessions[j].startTimeMillis;
                 let sleepEnd = sessions[j].endTimeMillis;
                 let sleepStartISO = new Date(parseInt(sleepStart)).toISOString();                
                 let sleepEndISO = new Date(parseInt(sleepEnd)).toISOString();
-
+                let source = sessions[j].application.packageName;
                 let unique = await airtableRecordLookup(sleepStartISO)
                 if (unique == false) {
                     continue;
@@ -245,7 +246,8 @@ async function getSleepData(accessToken) {
                 let tableId = tableAndFieldIds.sessions.tableId;
                 let recordData = {
                     [tableAndFieldIds.sessions.fieldIds[0]]: sleepStartISO,
-                    [tableAndFieldIds.sessions.fieldIds[1]]: sleepEndISO
+                    [tableAndFieldIds.sessions.fieldIds[1]]: sleepEndISO,
+                    [tableAndFieldIds.sessions.fieldIds[2]]: source
                 };
                 try {
                     sleepId = await createRecord(tableId, recordData);

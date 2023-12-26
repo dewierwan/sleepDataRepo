@@ -203,7 +203,7 @@ async function getSleepData(accessToken) {
     let sleepId;
     let sleepArray = [];
     
-    const daysAgo = 10;
+    const daysAgo = 3;
     const now = Date.now(); // timestamp in milliseconds
     const startDateMilli = now - daysAgo * 24 * 60 * 60 * 1000;
     const startDate = new Date(startDateMilli);
@@ -239,6 +239,7 @@ async function getSleepData(accessToken) {
                 let sleepEndISO = new Date(parseInt(sleepEnd)).toISOString();
                 let source = sessions[j].application.packageName;
                 let unique = await airtableRecordLookup(sleepStartISO)
+
                 if (unique == false) {
                     continue;
                 }
@@ -249,6 +250,7 @@ async function getSleepData(accessToken) {
                     [tableAndFieldIds.sessions.fieldIds[1]]: sleepEndISO,
                     [tableAndFieldIds.sessions.fieldIds[2]]: source
                 };
+                //console.log(`Output: ${JSON.stringify(recordData,null,2)}`);
                 try {
                     sleepId = await createRecord(tableId, recordData);
                 } catch (error) {

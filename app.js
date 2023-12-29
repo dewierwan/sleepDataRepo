@@ -173,12 +173,14 @@ async function openAuthUrl(){
     });
 }   
 
-async function airtableRecordLookup(sleepStartISO){
+async function airtableRecordLookup(sleepStartISO, sleepEndISO){
     // Set up query parameters to search for existing record 
     const tableId = tableAndFieldIds.sessions.tableId;
     const startTimeFieldId = tableAndFieldIds.sessions.fieldIds[0];
+    const endTimeFieldId = tableAndFieldIds.sessions.fieldIds[1];
+
     const existingQuery = {
-        filterByFormula: `${startTimeFieldId} = '${sleepStartISO}'`, 
+        filterByFormula: `AND(${startTimeFieldId} = '${sleepStartISO}', ${endTimeFieldId} = '${sleepEndISO}')`, 
         // maxResults: 1,
         sort: [{
             field: startTimeFieldId,
@@ -230,7 +232,7 @@ async function getSleepData(accessToken) {
         });
         const sessions = result.data.session;
         
-        //console.log(JSON.stringify(sessions, null, 2));
+        //console.log(`Sessions: ${JSON.stringify(sessions, null, 2)}`);
         try {
             for (let j = 0; j < sessions.length; j++) {
                 let sleepStart = sessions[j].startTimeMillis;
@@ -250,7 +252,7 @@ async function getSleepData(accessToken) {
                     [tableAndFieldIds.sessions.fieldIds[1]]: sleepEndISO,
                     [tableAndFieldIds.sessions.fieldIds[2]]: source
                 };
-                //console.log(`Output: ${JSON.stringify(recordData,null,2)}`);
+                                
                 try {
                     sleepId = await createRecord(tableId, recordData);
                 } catch (error) {
@@ -270,7 +272,7 @@ async function getSleepData(accessToken) {
                     month: '2-digit',
                     year: 'numeric'
                 });
-                console.log(`Sleep record: ${formatter.format(dateObj)}`);
+                //console.log(`Sleep record: ${formatter.format(dateObj)}`);
 
                 try{
                     const stages = await axios({
@@ -293,7 +295,9 @@ async function getSleepData(accessToken) {
                     });
                     
                     const points = stages.data.bucket[0].dataset[0].point; // Gets the sleep stages
+                    
                     for (let point of points) {
+                        //console.log(JSON.stringify(point,null,2));
                         let value = point.value[0].intVal;
                         let sleepStage = {
                             startTime: new Date(point.startTimeNanos / 1000000).toLocaleString(),

@@ -201,7 +201,7 @@ async function airtableRecordLookup(sleepStartISO, sleepEndISO){
     }
 }
 
-async function getSleepData(accessToken) {
+async function getSleepData(accessToken) {  
     let sleepId;
     let sleepArray = [];
     
@@ -244,6 +244,17 @@ async function getSleepData(accessToken) {
 
                 if (unique == false) {
                     continue;
+                }
+
+                const start = new Date(sleepStartISO);
+                const end = new Date(sleepEndISO);
+                
+                // Calculate the difference in milliseconds
+                const difference = end - start;
+                
+                // Check if the session is shorter than the threshold (5.5 hours)
+                if (difference < 19800000) {
+                    continue; // Skip if the session is shorter than the threshold
                 }
 
                 let tableId = tableAndFieldIds.sessions.tableId;
